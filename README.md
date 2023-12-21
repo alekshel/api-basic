@@ -24,3 +24,12 @@ py manage.py runserver
 or
 python manage.py runserver
 ```
+
+# Alternative version with Docker
+
+## 1. Create password.txt file in db folder
+
+## 2. Run docker-compose
+```
+docker-compose up --build
+```
