@@ -1,0 +1,295 @@
+openapi: 3.0.3
+info:
+  title: Api-Basic - OpenAPI 3.0
+  description: |-
+    This is a sample api for books and authors.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+tags:
+  - name: books
+    description: Books operations
+  - name: authors
+    description: Authors operations
+paths:
+  /books:
+    get:
+      tags:
+        - books
+      summary: Get all books
+      description: Get all books
+      parameters:
+        - name: year
+          in: query
+          description: Book puplish year
+          required: false
+          schema:
+            type: integer
+        - name: genre
+          in: query
+          description: Book genre
+          required: false
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Book author
+          required: false
+          schema:
+            type: string
+            format: separated string by comma
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '404':
+          description: Books not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBookNotFound'
+    post:
+      tags:
+        - books
+      summary: Create a book
+      description: Create a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorBookTitleExists'
+                  - $ref: '#/components/schemas/ErrorBookGenreExists'
+                  - $ref: '#/components/schemas/ErrorBookYearExists'
+  /books/{book_id}:
+    get:
+      tags:
+        - books
+      summary: Get a book
+      description: Get a book
+      parameters:
+        - name: book_id
+          in: path
+          description: Book id
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Books not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBookNotFound'
+    put:
+      tags:
+        - books
+      summary: Update a book
+      description: Update a book
+      parameters:
+        - name: book_id
+          in: path
+          description: Book id
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Books not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBookNotFound'
+    delete:
+      tags:
+        - books
+      summary: Delete a book
+      description: Delete a book
+      parameters:
+        - name: book_id
+          in: path
+          description: Book id
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteBookResponse'
+        '404':
+          description: Books not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBookNotFound'
+  /authors:
+    get:
+      tags:
+        - authors
+      summary: Get all authors
+      description: Get all authors
+      parameters:
+        - name: name
+          in: query
+          description: Author name
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        '404':
+          description: Authors not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorAuthorNotFound'
+  /authors/{author_id}:
+    get:
+      tags:
+        - authors
+      summary: Get a author
+      description: Get a author
+      parameters:
+        - name: author_id
+          in: path
+          description: Author id
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Authors not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorAuthorNotFound'
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        title:
+          type: string
+          example: The Lord of the Rings
+          required: true
+        genre:
+          type: string
+          example: Fantasy
+          required: true
+        authors:
+          type: array
+          items:
+            type: string
+          example:
+            - J. R. R. Tolkien
+        year:
+          type: integer
+          format: int32
+          example: 1954
+          required: true
+    Author:
+      type: object
+      properties:
+        name:
+          type: string
+          example: J. R. R. Tolkien
+        books:
+          type: array
+          items:
+            type: string
+          example:
+            - The Lord of the Rings
+    DeleteBookResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: deleted id={book_id}
+    ErrorBookNotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Books not found
+    ErrorAuthorNotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Author not found
+    ErrorBookTitleExists:
+      type: object
+      properties:
+        error:
+          type: string
+          example: title is required
+    ErrorBookGenreExists:
+      type: object
+      properties:
+        error:
+          type: string
+          example: genre is required
+    ErrorBookYearExists:
+      type: object
+      properties:
+        error:
+          type: string
+          example: year is required
