@@ -95,6 +95,21 @@ if IS_HEROKU_APP:
             ssl_require=True,
         ),
     }
+elif os.getenv("DOCKERIZED", False):
+    try:
+        POSTGRES_PASSWORD = open(os.getenv("POSTGRES_PASSWORD_FILE", "")).read().strip()
+    except FileNotFoundError:
+        POSTGRES_PASSWORD = "for_tests"
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB", "mock-db"),
+            "USER": "postgres",
+            "PASSWORD": POSTGRES_PASSWORD,
+            "HOST": "db",
+            "PORT": "5432",
+        }
+    }
 else:
     # When running locally in development or in CI, a sqlite database file will be used instead
     # to simplify initial setup. Longer term it's recommended to use Postgres locally too.
@@ -146,3 +161,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}

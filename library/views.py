@@ -1,7 +1,9 @@
 import json
 
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 
 from library.models import Book, Author
 
@@ -39,6 +41,7 @@ class BooksView(View):
     def is_author(author_id):
         return Author.objects.filter(id=author_id).exists()
 
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, book_id=None):
         if book_id:
             try:
@@ -148,6 +151,7 @@ class AuthorsView(View):
 
         return authors
 
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, author_id=None):
         if author_id:
             try:
